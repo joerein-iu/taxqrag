@@ -1,3 +1,6 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19648478.svg)](https://doi.org/10.5281/zenodo.19648478)
+[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+
 # QRAG-Tax: Quantum-Enhanced Retrieval-Augmented Generation for Tax Strategy Selection
 
 A RAG system that selects **combinations** of tax strategies rather than individually relevant documents. The reranking step is cast as a multi-constraint QUBO over a hand-curated strategy-interaction matrix (synergy rewards, conflict penalties, audit-risk compounding) and solved with quantum annealing (D-Wave-style simulated annealing) or gate-based QAOA (IBM Quantum via Qiskit Runtime / Aer). Compared to classical greedy selection, the QUBO-based pipelines capture up to 5× more strategy synergies while the quantum-annealing variant maintains a 0% conflict rate.
@@ -119,8 +122,19 @@ Everything else — sampler wiring, transpiler options, solver selection, benchm
 
 ## Citation
 
-```
-TBD — preprint forthcoming on arXiv (quant-ph / cs.IR).
+If you use TaxQRAG in your research, please cite:
+
+```bibtex
+@misc{reinert2025taxqrag,
+  author    = {Reinert, Joe},
+  title     = {Multi-Constraint Quantum Document Selection for
+               Retrieval-Augmented Generation: An Empirical Study
+               of Classical, Annealing, and Gate-Based Quantum Solvers},
+  year      = {2025},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.19648478},
+  url       = {https://doi.org/10.5281/zenodo.19648478}
+}
 ```
 
 ## Acknowledgments
