@@ -1,0 +1,363 @@
+{
+  "seed": 43,
+  "reps": 2,
+  "optimization_level": 1,
+  "lambda_counts_tested": [
+    1.0,
+    5.0
+  ],
+  "queries": [
+    {
+      "query_index": 5,
+      "query": "How can I use my home for business tax purposes without triggering conflicts?",
+      "runs": {
+        "1.0": {
+          "lambda_count": 1.0,
+          "num_selected": 20,
+          "circuit_depth": 61,
+          "energy": 261.0287793388384,
+          "combination_score": -2.9,
+          "total_synergy": 0.0,
+          "total_conflict": 0.95,
+          "max_audit_compound": 2.0,
+          "has_conflict": true,
+          "synergies_found": 0,
+          "warnings_count": 2,
+          "avg_relevance": 0.332484295964241,
+          "strategies": [
+            "AUGUSTA_RULE",
+            "HOME_OFFICE",
+            "IRS_PUB_946_chunk_2",
+            "IRS_PUB_946_chunk_9",
+            "IRS_PUB_535_chunk_2",
+            "IRS_PUB_550_chunk_9",
+            "IRS_PUB_946_chunk_4",
+            "IRS_PUB_550_chunk_8",
+            "IRS_PUB_550_chunk_4",
+            "IRS_PUB_946_chunk_8",
+            "HSA",
+            "IRS_PUB_946_chunk_7",
+            "IRS_PUB_946_chunk_5",
+            "IRS_PUB_550_chunk_7",
+            "IRS_PUB_590a_chunk_4",
+            "IRS_PUB_550_chunk_6",
+            "IRS_PUB_946_chunk_3",
+            "IRC_280A",
+            "IRS_PUB_969_chunk_2",
+            "IRS_PUB_535_chunk_1"
+          ],
+          "synergies_text": [],
+          "warnings_text": [
+            "\u26a0\ufe0f  CONFLICT: AUGUSTA_RULE conflicts with HOME_OFFICE (score: 0.95)",
+            "\u26a0\ufe0f  AUDIT RISK: AUGUSTA_RULE + HOME_OFFICE compounds audit risk 2.0x"
+          ],
+          "wall_ms": 2467.447280883789
+        },
+        "5.0": {
+          "lambda_count": 5.0,
+          "num_selected": 20,
+          "circuit_depth": 61,
+          "energy": 1061.028779338838,
+          "combination_score": -2.9,
+          "total_synergy": 0.0,
+          "total_conflict": 0.95,
+          "max_audit_compound": 2.0,
+          "has_conflict": true,
+          "synergies_found": 0,
+          "warnings_count": 2,
+          "avg_relevance": 0.332484295964241,
+          "strategies": [
+            "AUGUSTA_RULE",
+            "HOME_OFFICE",
+            "IRS_PUB_946_chunk_2",
+            "IRS_PUB_946_chunk_9",
+            "IRS_PUB_535_chunk_2",
+            "IRS_PUB_550_chunk_9",
+            "IRS_PUB_946_chunk_4",
+            "IRS_PUB_550_chunk_8",
+            "IRS_PUB_550_chunk_4",
+            "IRS_PUB_946_chunk_8",
+            "HSA",
+            "IRS_PUB_946_chunk_7",
+            "IRS_PUB_946_chunk_5",
+            "IRS_PUB_550_chunk_7",
+            "IRS_PUB_590a_chunk_4",
+            "IRS_PUB_550_chunk_6",
+            "IRS_PUB_946_chunk_3",
+            "IRC_280A",
+            "IRS_PUB_969_chunk_2",
+            "IRS_PUB_535_chunk_1"
+          ],
+          "synergies_text": [],
+          "warnings_text": [
+            "\u26a0\ufe0f  CONFLICT: AUGUSTA_RULE conflicts with HOME_OFFICE (score: 0.95)",
+            "\u26a0\ufe0f  AUDIT RISK: AUGUSTA_RULE + HOME_OFFICE compounds audit risk 2.0x"
+          ],
+          "wall_ms": 768.4948444366455
+        }
+      }
+    },
+    {
+      "query_index": 7,
+      "query": "Can I use the Augusta Rule and home office deduction at the same time?",
+      "runs": {
+        "1.0": {
+          "lambda_count": 1.0,
+          "num_selected": 20,
+          "circuit_depth": 61,
+          "energy": 262.31972813660246,
+          "combination_score": -2.9,
+          "total_synergy": 0.0,
+          "total_conflict": 0.95,
+          "max_audit_compound": 2.0,
+          "has_conflict": true,
+          "synergies_found": 0,
+          "warnings_count": 2,
+          "avg_relevance": 0.3621842831373215,
+          "strategies": [
+            "HOME_OFFICE",
+            "AUGUSTA_RULE",
+            "IRS_PUB_946_chunk_2",
+            "IRS_PUB_535_chunk_2",
+            "IRC_280A",
+            "IRS_PUB_946_chunk_5",
+            "IRS_PUB_946_chunk_3",
+            "IRS_PUB_946_chunk_9",
+            "IRS_PUB_946_chunk_7",
+            "IRS_PUB_946_chunk_4",
+            "DEPRECIATION_179",
+            "IRS_PUB_550_chunk_4",
+            "IRS_PUB_590a_chunk_2",
+            "IRS_PUB_946_chunk_6",
+            "IRS_PUB_946_chunk_8",
+            "IRS_PUB_969_chunk_3",
+            "IRS_PUB_550_chunk_9",
+            "IRS_PUB_535_chunk_0",
+            "IRS_PUB_946_chunk_0",
+            "IRS_PUB_969_chunk_5"
+          ],
+          "synergies_text": [],
+          "warnings_text": [
+            "\u26a0\ufe0f  CONFLICT: HOME_OFFICE conflicts with AUGUSTA_RULE (score: 0.95)",
+            "\u26a0\ufe0f  AUDIT RISK: HOME_OFFICE + AUGUSTA_RULE compounds audit risk 2.0x"
+          ],
+          "wall_ms": 539.0791893005371
+        },
+        "5.0": {
+          "lambda_count": 5.0,
+          "num_selected": 0,
+          "circuit_depth": 61,
+          "energy": 0.0,
+          "combination_score": 0.0,
+          "total_synergy": 0.0,
+          "total_conflict": 0.0,
+          "max_audit_compound": 1.0,
+          "has_conflict": false,
+          "synergies_found": 0,
+          "warnings_count": 0,
+          "avg_relevance": 0.0,
+          "strategies": [],
+          "synergies_text": [],
+          "warnings_text": [],
+          "wall_ms": 532.717227935791
+        }
+      }
+    },
+    {
+      "query_index": 9,
+      "query": "What's the interaction between Section 1256 treatment and S-Corp election?",
+      "runs": {
+        "1.0": {
+          "lambda_count": 1.0,
+          "num_selected": 20,
+          "circuit_depth": 61,
+          "energy": 265.63373677375426,
+          "combination_score": 1.25,
+          "total_synergy": 1.65,
+          "total_conflict": 0.0,
+          "max_audit_compound": 1.4,
+          "has_conflict": true,
+          "synergies_found": 2,
+          "warnings_count": 1,
+          "avg_relevance": 0.24606739580631257,
+          "strategies": [
+            "IRS_PUB_550_chunk_1",
+            "IRS_PUB_550_chunk_5",
+            "SCORP_SALARY",
+            "IRS_PUB_969_chunk_4",
+            "IRS_PUB_560_chunk_1",
+            "IRS_PUB_535_chunk_1",
+            "IRS_PUB_590a_chunk_1",
+            "SECTION_1256",
+            "IRS_PUB_969_chunk_1",
+            "QBI_DEDUCTION",
+            "IRS_PUB_946_chunk_1",
+            "IRS_PUB_560_chunk_4",
+            "IRS_PUB_560_chunk_5",
+            "IRS_PUB_560_chunk_3",
+            "IRC_199A",
+            "IRS_PUB_590a_chunk_4",
+            "AUGUSTA_RULE",
+            "IRS_PUB_590a_chunk_8",
+            "IRC_1202",
+            "IRC_469"
+          ],
+          "synergies_text": [
+            "SCORP_SALARY + QBI_DEDUCTION (synergy: 0.85)",
+            "SCORP_SALARY + AUGUSTA_RULE (synergy: 0.80)"
+          ],
+          "warnings_text": [
+            "\u26a0\ufe0f  AUDIT RISK: SCORP_SALARY + AUGUSTA_RULE compounds audit risk 1.4x"
+          ],
+          "wall_ms": 435.92238426208496
+        },
+        "5.0": {
+          "lambda_count": 5.0,
+          "num_selected": 20,
+          "circuit_depth": 61,
+          "energy": 1065.6337367737542,
+          "combination_score": 1.25,
+          "total_synergy": 1.65,
+          "total_conflict": 0.0,
+          "max_audit_compound": 1.4,
+          "has_conflict": true,
+          "synergies_found": 2,
+          "warnings_count": 1,
+          "avg_relevance": 0.24606739580631257,
+          "strategies": [
+            "IRS_PUB_550_chunk_1",
+            "IRS_PUB_550_chunk_5",
+            "SCORP_SALARY",
+            "IRS_PUB_969_chunk_4",
+            "IRS_PUB_560_chunk_1",
+            "IRS_PUB_535_chunk_1",
+            "IRS_PUB_590a_chunk_1",
+            "SECTION_1256",
+            "IRS_PUB_969_chunk_1",
+            "QBI_DEDUCTION",
+            "IRS_PUB_946_chunk_1",
+            "IRS_PUB_560_chunk_4",
+            "IRS_PUB_560_chunk_5",
+            "IRS_PUB_560_chunk_3",
+            "IRC_199A",
+            "IRS_PUB_590a_chunk_4",
+            "AUGUSTA_RULE",
+            "IRS_PUB_590a_chunk_8",
+            "IRC_1202",
+            "IRC_469"
+          ],
+          "synergies_text": [
+            "SCORP_SALARY + QBI_DEDUCTION (synergy: 0.85)",
+            "SCORP_SALARY + AUGUSTA_RULE (synergy: 0.80)"
+          ],
+          "warnings_text": [
+            "\u26a0\ufe0f  AUDIT RISK: SCORP_SALARY + AUGUSTA_RULE compounds audit risk 1.4x"
+          ],
+          "wall_ms": 406.65674209594727
+        }
+      }
+    },
+    {
+      "query_index": 11,
+      "query": "How do I structure a year with a business loss to maximize tax efficiency?",
+      "runs": {
+        "1.0": {
+          "lambda_count": 1.0,
+          "num_selected": 20,
+          "circuit_depth": 61,
+          "energy": 229.8725222279484,
+          "combination_score": 0.25000000000000044,
+          "total_synergy": 3.1500000000000004,
+          "total_conflict": 0.95,
+          "max_audit_compound": 2.0,
+          "has_conflict": true,
+          "synergies_found": 4,
+          "warnings_count": 3,
+          "avg_relevance": 0.3653362810611725,
+          "strategies": [
+            "IRS_PUB_550_chunk_8",
+            "IRS_PUB_535_chunk_2",
+            "DEPRECIATION_179",
+            "IRS_PUB_946_chunk_9",
+            "IRS_PUB_550_chunk_7",
+            "IRS_PUB_550_chunk_4",
+            "IRS_PUB_946_chunk_7",
+            "HOME_OFFICE",
+            "IRS_PUB_946_chunk_4",
+            "IRS_PUB_946_chunk_3",
+            "IRS_PUB_946_chunk_2",
+            "AUGUSTA_RULE",
+            "SCORP_SALARY",
+            "IRS_PUB_535_chunk_0",
+            "IRS_PUB_550_chunk_9",
+            "IRC_1244",
+            "IRS_PUB_946_chunk_6",
+            "IRS_PUB_946_chunk_5",
+            "TRADER_TAX_STATUS",
+            "HSA"
+          ],
+          "synergies_text": [
+            "DEPRECIATION_179 + SCORP_SALARY (synergy: 0.75)",
+            "HOME_OFFICE + TRADER_TAX_STATUS (synergy: 0.85)",
+            "AUGUSTA_RULE + SCORP_SALARY (synergy: 0.80)",
+            "SCORP_SALARY + HSA (synergy: 0.75)"
+          ],
+          "warnings_text": [
+            "\u26a0\ufe0f  CONFLICT: HOME_OFFICE conflicts with AUGUSTA_RULE (score: 0.95)",
+            "\u26a0\ufe0f  AUDIT RISK: HOME_OFFICE + AUGUSTA_RULE compounds audit risk 2.0x",
+            "\u26a0\ufe0f  AUDIT RISK: AUGUSTA_RULE + SCORP_SALARY compounds audit risk 1.4x"
+          ],
+          "wall_ms": 426.30934715270996
+        },
+        "5.0": {
+          "lambda_count": 5.0,
+          "num_selected": 20,
+          "circuit_depth": 61,
+          "energy": 1029.8725222279472,
+          "combination_score": 0.25000000000000044,
+          "total_synergy": 3.1500000000000004,
+          "total_conflict": 0.95,
+          "max_audit_compound": 2.0,
+          "has_conflict": true,
+          "synergies_found": 4,
+          "warnings_count": 3,
+          "avg_relevance": 0.3653362810611725,
+          "strategies": [
+            "IRS_PUB_550_chunk_8",
+            "IRS_PUB_535_chunk_2",
+            "DEPRECIATION_179",
+            "IRS_PUB_946_chunk_9",
+            "IRS_PUB_550_chunk_7",
+            "IRS_PUB_550_chunk_4",
+            "IRS_PUB_946_chunk_7",
+            "HOME_OFFICE",
+            "IRS_PUB_946_chunk_4",
+            "IRS_PUB_946_chunk_3",
+            "IRS_PUB_946_chunk_2",
+            "AUGUSTA_RULE",
+            "SCORP_SALARY",
+            "IRS_PUB_535_chunk_0",
+            "IRS_PUB_550_chunk_9",
+            "IRC_1244",
+            "IRS_PUB_946_chunk_6",
+            "IRS_PUB_946_chunk_5",
+            "TRADER_TAX_STATUS",
+            "HSA"
+          ],
+          "synergies_text": [
+            "DEPRECIATION_179 + SCORP_SALARY (synergy: 0.75)",
+            "HOME_OFFICE + TRADER_TAX_STATUS (synergy: 0.85)",
+            "AUGUSTA_RULE + SCORP_SALARY (synergy: 0.80)",
+            "SCORP_SALARY + HSA (synergy: 0.75)"
+          ],
+          "warnings_text": [
+            "\u26a0\ufe0f  CONFLICT: HOME_OFFICE conflicts with AUGUSTA_RULE (score: 0.95)",
+            "\u26a0\ufe0f  AUDIT RISK: HOME_OFFICE + AUGUSTA_RULE compounds audit risk 2.0x",
+            "\u26a0\ufe0f  AUDIT RISK: AUGUSTA_RULE + SCORP_SALARY compounds audit risk 1.4x"
+          ],
+          "wall_ms": 323.6830234527588
+        }
+      }
+    }
+  ]
+}

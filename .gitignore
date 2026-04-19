@@ -1,0 +1,46 @@
+# Secrets
+.env
+.env.local
+.env.*.local
+apikey.json
+*.apikey
+*.credentials.json
+
+# Prompt / task files used during development — not part of the release
+CLAUDE_CODE_PROMPT.txt
+CLAUDE_CODE_IBM_PROMPT.txt
+githubprompt.txt
+prompt*.txt
+*_PROMPT.txt
+
+# Vector store — large, regenerate with `python corpus/ingest_tax.py`
+data/chroma/
+
+# Python
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Benchmark JSON artifacts ARE tracked (these are the reproducible results)
+!data/benchmarks/
+!data/benchmarks/*.json
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Local zip staging from original hand-off (unpacked into package layout)
+files.zip
+ibmfiles.zip
+ibmfiles/
+
+# HuggingFace download cache (large, re-downloads on first ingest)
+.cache/

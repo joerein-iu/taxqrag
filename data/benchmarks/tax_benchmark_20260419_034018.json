@@ -1,0 +1,307 @@
+{
+  "timestamp": "2026-04-19T03:40:18.103743",
+  "methodology": "Multi-constraint QUBO vs greedy classical selection",
+  "num_queries": 12,
+  "num_runs_per_query": 2,
+  "results": {
+    "classical": [
+      {
+        "combination_score": 1.45,
+        "total_synergy": 1.75,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 2.0,
+        "avg_relevance": 0.4942487359046936,
+        "reranking_ms": 0.0,
+        "query": "I trade MNQ futures full time through an S-Corp. How do I minimize taxes?",
+        "pipeline": "classical"
+      },
+      {
+        "combination_score": 1.55,
+        "total_synergy": 1.55,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 1.0,
+        "avg_relevance": 0.4257792949676514,
+        "reranking_ms": 0.0,
+        "query": "What retirement strategies work best for an active futures trader with TTS?",
+        "pipeline": "classical"
+      },
+      {
+        "combination_score": 1.7999999999999998,
+        "total_synergy": 1.7999999999999998,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 2.0,
+        "avg_relevance": 0.4989646315574646,
+        "reranking_ms": 0.0,
+        "query": "I have both W-2 income and S-Corp income. How do I optimize my tax position?",
+        "pipeline": "classical"
+      },
+      {
+        "combination_score": 0.75,
+        "total_synergy": 0.75,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 1.0,
+        "avg_relevance": 0.5336027145385742,
+        "reranking_ms": 0.0,
+        "query": "I run a profitable S-Corp and want to maximize deductions this year",
+        "pipeline": "classical"
+      },
+      {
+        "combination_score": 0.0,
+        "total_synergy": 0.0,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 0.0,
+        "avg_relevance": 0.40636831521987915,
+        "reranking_ms": 0.0,
+        "query": "How can I use my home for business tax purposes without triggering conflicts?",
+        "pipeline": "classical"
+      },
+      {
+        "combination_score": 0.0,
+        "total_synergy": 0.0,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 0.0,
+        "avg_relevance": 0.4882847547531128,
+        "reranking_ms": 0.0,
+        "query": "What's the best combination of retirement accounts for a self-employed person?",
+        "pipeline": "classical"
+      },
+      {
+        "combination_score": 0.0,
+        "total_synergy": 0.0,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 0.0,
+        "avg_relevance": 0.4506878614425659,
+        "reranking_ms": 0.0,
+        "query": "Can I use the Augusta Rule and home office deduction at the same time?",
+        "pipeline": "classical"
+      },
+      {
+        "combination_score": 0.95,
+        "total_synergy": 0.95,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 1.0,
+        "avg_relevance": 0.48383132219314573,
+        "reranking_ms": 0.0,
+        "query": "How do Solo 401k and S-Corp salary optimization work together?",
+        "pipeline": "classical"
+      },
+      {
+        "combination_score": 0.0,
+        "total_synergy": 0.0,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 0.0,
+        "avg_relevance": 0.2704492211341858,
+        "reranking_ms": 0.0,
+        "query": "What's the interaction between Section 1256 treatment and S-Corp election?",
+        "pipeline": "classical"
+      },
+      {
+        "combination_score": 0.0,
+        "total_synergy": 0.0,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 0.0,
+        "avg_relevance": 0.4919623970985413,
+        "reranking_ms": 0.0,
+        "query": "I want to maximize retirement savings, minimize SE tax, and capture business deductions",
+        "pipeline": "classical"
+      },
+      {
+        "combination_score": 0.0,
+        "total_synergy": 0.0,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 0.0,
+        "avg_relevance": 0.4387110710144043,
+        "reranking_ms": 0.0,
+        "query": "How do I structure a year with a business loss to maximize tax efficiency?",
+        "pipeline": "classical"
+      },
+      {
+        "combination_score": 1.6,
+        "total_synergy": 1.6,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 2.0,
+        "avg_relevance": 0.3815754890441895,
+        "reranking_ms": 0.0,
+        "query": "What strategies stack legally for a self-employed person in the 32% bracket?",
+        "pipeline": "classical"
+      }
+    ],
+    "quantum": [
+      {
+        "combination_score": 0.0,
+        "total_synergy": 0.0,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 0.0,
+        "avg_relevance": 0.373111551006635,
+        "reranking_ms": 7599.036931991577,
+        "query": "I trade MNQ futures full time through an S-Corp. How do I minimize taxes?",
+        "pipeline": "quantum"
+      },
+      {
+        "combination_score": 3.0,
+        "total_synergy": 3.0,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 2.0,
+        "avg_relevance": 0.36483249068260193,
+        "reranking_ms": 7334.550976753235,
+        "query": "What retirement strategies work best for an active futures trader with TTS?",
+        "pipeline": "quantum"
+      },
+      {
+        "combination_score": 1.25,
+        "total_synergy": 1.25,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 1.5,
+        "avg_relevance": 0.40254362637088414,
+        "reranking_ms": 7358.1483364105225,
+        "query": "I have both W-2 income and S-Corp income. How do I optimize my tax position?",
+        "pipeline": "quantum"
+      },
+      {
+        "combination_score": 4.8,
+        "total_synergy": 4.8,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 5.0,
+        "avg_relevance": 0.47783288785389494,
+        "reranking_ms": 7467.989802360535,
+        "query": "I run a profitable S-Corp and want to maximize deductions this year",
+        "pipeline": "quantum"
+      },
+      {
+        "combination_score": 0.0,
+        "total_synergy": 0.0,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 0.0,
+        "avg_relevance": 0.3577345609664917,
+        "reranking_ms": 7377.8393268585205,
+        "query": "How can I use my home for business tax purposes without triggering conflicts?",
+        "pipeline": "quantum"
+      },
+      {
+        "combination_score": 0.0,
+        "total_synergy": 0.0,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 0.0,
+        "avg_relevance": 0.4682954351107279,
+        "reranking_ms": 7324.310779571533,
+        "query": "What's the best combination of retirement accounts for a self-employed person?",
+        "pipeline": "quantum"
+      },
+      {
+        "combination_score": 0.7,
+        "total_synergy": 0.7,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 0.0,
+        "avg_relevance": 0.3857193390528361,
+        "reranking_ms": 7388.436079025269,
+        "query": "Can I use the Augusta Rule and home office deduction at the same time?",
+        "pipeline": "quantum"
+      },
+      {
+        "combination_score": 4.8,
+        "total_synergy": 4.8,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 5.0,
+        "avg_relevance": 0.36455598047801424,
+        "reranking_ms": 7594.306707382202,
+        "query": "How do Solo 401k and S-Corp salary optimization work together?",
+        "pipeline": "quantum"
+      },
+      {
+        "combination_score": 3.3499999999999996,
+        "total_synergy": 3.3499999999999996,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 4.0,
+        "avg_relevance": 0.2297896196444829,
+        "reranking_ms": 7386.983394622803,
+        "query": "What's the interaction between Section 1256 treatment and S-Corp election?",
+        "pipeline": "quantum"
+      },
+      {
+        "combination_score": 0.0,
+        "total_synergy": 0.0,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 0.0,
+        "avg_relevance": 0.4691696912050247,
+        "reranking_ms": 7335.572719573975,
+        "query": "I want to maximize retirement savings, minimize SE tax, and capture business deductions",
+        "pipeline": "quantum"
+      },
+      {
+        "combination_score": 1.75,
+        "total_synergy": 1.75,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 2.0,
+        "avg_relevance": 0.31657274067401886,
+        "reranking_ms": 7373.340725898743,
+        "query": "How do I structure a year with a business loss to maximize tax efficiency?",
+        "pipeline": "quantum"
+      },
+      {
+        "combination_score": 2.5,
+        "total_synergy": 2.5,
+        "total_conflict": 0.0,
+        "has_conflict": 0.0,
+        "synergies_found": 3.0,
+        "avg_relevance": 0.3081828703482946,
+        "reranking_ms": 7358.228921890259,
+        "query": "What strategies stack legally for a self-employed person in the 32% bracket?",
+        "pipeline": "quantum"
+      }
+    ]
+  },
+  "summary": {
+    "combination_score": {
+      "classical": 0.6749999999999999,
+      "quantum": 1.8458333333333332,
+      "delta_pct": 173.4567901234568
+    },
+    "total_synergy": {
+      "classical": 0.7000000000000001,
+      "quantum": 1.8458333333333332,
+      "delta_pct": 163.69047619047615
+    },
+    "total_conflict": {
+      "classical": 0.0,
+      "quantum": 0.0,
+      "delta_pct": 0.0
+    },
+    "synergies_found": {
+      "classical": 0.75,
+      "quantum": 1.875,
+      "delta_pct": 150.0
+    },
+    "avg_relevance": {
+      "classical": 0.4470388174057008,
+      "quantum": 0.3765283994494922,
+      "delta_pct": -15.772773014522883
+    }
+  },
+  "conflict_rate": {
+    "classical": 0.0,
+    "quantum": 0.0
+  }
+}

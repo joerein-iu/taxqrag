@@ -1,0 +1,652 @@
+\documentclass{article}
+
+% Packages
+\usepackage[final]{neurips_2024}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{footnote}
+
+\title{Multi-Constraint Quantum Document Selection for\\
+Retrieval-Augmented Generation:\\
+An Empirical Study of Classical, Annealing,\\
+and Gate-Based Quantum Solvers}
+
+\author{
+  Joe Reinert \\
+  Independent Researcher \\
+  Cincinnati, OH \\
+  \texttt{jreinert11@outlook.com} \\
+}
+
+\begin{document}
+
+\maketitle
+
+% ─────────────────────────────────────────────
+\begin{abstract}
+Retrieval-Augmented Generation (RAG) systems typically select context
+documents using greedy nearest-neighbor search, which optimizes each
+document independently and ignores combinatorial interactions between
+retrieved items. We present \textbf{TaxQRAG}, the first open-source
+quantum-hybrid RAG system evaluated on real quantum hardware for
+multi-strategy document selection under explicit pairwise interaction
+constraints. Unlike prior work, our QUBO (Quadratic Unconstrained
+Binary Optimization) formulation incorporates three novel quadratic
+terms: domain-specific pairwise \emph{synergy rewards}, \emph{conflict
+penalties}, and \emph{audit risk compounding} — enabling selection of
+document subsets that are jointly optimal rather than individually
+relevant. Applied to a tax strategy corpus (87 documents; IRS
+publications, Internal Revenue Code sections, and structured strategy
+documents), we compare four solvers: classical greedy, simulated
+annealing (SA), QAOA on a local simulator (Aer), and QAOA on IBM
+Quantum's Heron R2 processor (\texttt{ibm\_fez}, 156 qubits). SA
+achieves a 173\% improvement in combination quality score over classical
+greedy with zero conflict selections. QAOA without parameter
+optimization produces a 66.7\% conflict rate, which a $\lambda$
+ablation study confirms is caused by unoptimized variational parameters
+rather than QUBO encoding deficiency — a negative result that
+motivates VQE-optimized QAOA as future work. We further conduct the
+first QAOA parameter sensitivity analysis for RAG document selection,
+finding that combination quality coefficient of variation reaches 88.2\%
+across random seeds, and that Ising energy and downstream combination
+score diverge significantly at shallow circuit depth. Code, benchmark
+data, and IBM Quantum job identifiers are released at
+\url{https://github.com/jreinert11/taxqrag}.
+\end{abstract}
+
+% ─────────────────────────────────────────────
+\section{Introduction}
+
+Retrieval-Augmented Generation \cite{lewis2020rag} has emerged as the
+dominant paradigm for grounding large language model (LLM) responses in
+external knowledge. The standard retrieval pipeline embeds a query,
+retrieves the $K$ nearest documents by cosine similarity, and passes
+them to the LLM as context. This approach has a fundamental limitation:
+it treats document selection as $K$ independent scalar comparisons
+rather than a combinatorial optimization over document subsets.
+
+In domains where documents interact — where strategy A amplifies
+strategy B, or strategy C legally conflicts with strategy D — greedy
+nearest-neighbor selection is provably suboptimal. The combinatorial
+problem of selecting the subset of $K$ documents that maximizes joint
+value subject to multiple constraints is NP-hard classically, making it
+a natural candidate for quantum optimization.
+
+Prior work on quantum-enhanced RAG \cite{qrag2025} has demonstrated
+Grover's algorithm for query acceleration and QAOA for basic relevance
+ranking, but has been limited to: (1) single-objective QUBO
+formulations, (2) simulated quantum hardware, and (3) no open-source
+implementations for reproducibility.
+
+\textbf{This paper makes four contributions:}
+\begin{enumerate}
+    \item A novel multi-constraint QUBO formulation incorporating
+    synergy rewards, conflict penalties, and audit risk compounding as
+    quadratic interaction terms (Section~\ref{sec:method}).
+    \item The first open-source implementation evaluated on real IBM
+    Quantum hardware for RAG document selection (Section~\ref{sec:experiments}).
+    \item A rigorous three-way empirical comparison of classical greedy,
+    simulated annealing, and gate-based QAOA solvers with honest
+    reporting of failure modes (Section~\ref{sec:results}).
+    \item A QAOA parameter sensitivity analysis and $\lambda$ ablation
+    study establishing that QAOA's conflict rate stems from
+    unoptimized variational parameters, not QUBO formulation
+    (Section~\ref{sec:analysis}).
+\end{enumerate}
+
+% ─────────────────────────────────────────────
+\section{Background}
+\label{sec:background}
+
+\subsection{Retrieval-Augmented Generation}
+
+RAG systems \cite{lewis2020rag} retrieve relevant documents from an
+external corpus and condition LLM generation on the retrieved context.
+Standard retrieval uses dense vector search (e.g., HNSW \cite{hnsw})
+to find nearest neighbors in embedding space. Reranking approaches such
+as Maximal Marginal Relevance (MMR) \cite{carbonell1998mmr} partially
+address redundancy but optimize greedily and cannot encode arbitrary
+pairwise constraints.
+
+\subsection{QUBO and Quantum Annealing}
+
+A Quadratic Unconstrained Binary Optimization (QUBO) problem is defined
+as:
+\begin{equation}
+\min_{x \in \{0,1\}^n} x^T Q x
+\end{equation}
+where $Q \in \mathbb{R}^{n \times n}$ encodes both linear (diagonal)
+and quadratic (off-diagonal) objective terms. QUBO is NP-hard in
+general but is the native problem format for quantum annealers
+(D-Wave) and can be transformed to the Ising Hamiltonian for gate-based
+QAOA via the substitution $x_i = (1 - z_i)/2$.
+
+\subsection{QAOA}
+
+The Quantum Approximate Optimization Algorithm \cite{farhi2014qaoa}
+applies alternating problem and mixer layers to a quantum circuit,
+parameterized by angles $\boldsymbol{\gamma}, \boldsymbol{\beta}$:
+\begin{equation}
+|\psi(\boldsymbol{\gamma}, \boldsymbol{\beta})\rangle =
+\prod_{l=1}^{p} e^{-i\beta_l H_M} e^{-i\gamma_l H_C} |+\rangle^n
+\end{equation}
+where $H_C$ is the cost Hamiltonian encoding the QUBO objective and
+$H_M$ is the transverse-field mixer. Optimal parameters are found via
+classical optimization (VQE); without this step, random initialization
+samples an arbitrary point in the variational landscape.
+
+% ─────────────────────────────────────────────
+\section{Method}
+\label{sec:method}
+
+\subsection{Problem Formulation}
+
+Given a query $q$ and corpus $\mathcal{D}$, we seek to select a subset
+$S \subseteq \mathcal{D}$, $|S| = K$ that maximizes joint combination
+quality subject to a token budget $B$. Let $x_i \in \{0,1\}$ indicate
+selection of document $i$. Our QUBO objective is:
+
+\begin{equation}
+\min_{x} \; \underbrace{-\sum_i r_i x_i}_{\text{relevance}} \;
++ \underbrace{\sum_{i < j} C_{ij} x_i x_j}_{\text{conflict}} \;
+- \underbrace{\sum_{i < j} S_{ij} x_i x_j}_{\text{synergy}} \;
++ \underbrace{\lambda_{\text{tok}} \left(\sum_i t_i x_i - B\right)^2}_{\text{token budget}} \;
++ \underbrace{\lambda_{\text{cnt}} \left(\sum_i x_i - K\right)^2}_{\text{cardinality}}
+\label{eq:qubo}
+\end{equation}
+
+where $r_i = \alpha \cdot \text{rel}_i + \beta \cdot \text{cred}_i$ is
+a weighted linear relevance term combining cosine similarity
+$\text{rel}_i$ and source credibility $\text{cred}_i \in [0, 1]$
+(IRS publications: 1.0; IRC sections: 1.0; structured strategies: 0.95).
+
+\subsection{Interaction Matrices — The Novel Contribution}
+
+Prior QUBO RAG work \cite{qrag2025} uses semantic cosine similarity for
+quadratic terms, penalizing redundant document pairs. We replace this
+with \emph{domain-specific interaction matrices} derived from tax law:
+
+\textbf{Synergy matrix} $S_{ij} \in [0, 1]$: reward for selecting
+complementary strategy pairs. Example: S-Corporation salary
+optimization and Solo 401(k) contributions have synergy $S_{ij} = 0.95$
+because the W-2 salary determines the maximum employer match —
+selecting both is more valuable than selecting either alone.
+
+\textbf{Conflict matrix} $C_{ij} \in [0, 1]$: penalty for selecting
+legally conflicting strategies. Example: the Augusta Rule (IRC §280A(g))
+and home office deduction conflict at $C_{ij} = 0.95$ because the same
+physical space cannot simultaneously qualify for both treatments under
+IRS rules.
+
+\textbf{Audit risk compounding} $A_{ij} \in [1, 2]$: multiplicative
+audit risk escalation for certain strategy combinations. Example:
+Augusta Rule combined with S-Corporation salary optimization compounds
+audit risk at $A_{ij} = 1.4\times$, encoded as an additional quadratic
+penalty term $\lambda_{\text{aud}}(A_{ij} - 1)$.
+
+Table~\ref{tab:interactions} shows a subset of the 20 encoded strategy
+pairs. The full interaction matrix is released with the codebase.
+
+\begin{table}[h]
+\centering
+\caption{Selected pairwise interaction scores. Synergy rewards joint
+selection; conflict penalizes it. Audit multiplier compounds risk.}
+\label{tab:interactions}
+\small
+\begin{tabular}{llccc}
+\toprule
+Strategy A & Strategy B & Synergy & Conflict & Audit \\
+\midrule
+S-Corp Salary & Solo 401(k) & 0.95 & 0.00 & 1.00× \\
+S-Corp Salary & QBI Deduction & 0.85 & 0.00 & 1.00× \\
+S-Corp Salary & Augusta Rule & 0.80 & 0.00 & 1.40× \\
+TTS Election & §1256 Contracts & 0.90 & 0.00 & 1.00× \\
+TTS Election & Solo 401(k) & 0.75 & 0.00 & 1.00× \\
+Augusta Rule & Home Office & 0.00 & 0.95 & 2.00× \\
+Solo 401(k) & SEP-IRA & 0.00 & 0.80 & 1.00× \\
+§1256 Contracts & S-Corp Trading & 0.00 & 0.85 & 1.00× \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Corpus}
+
+We construct a 87-document tax strategy corpus from public domain
+sources: 10 hand-crafted strategy documents encoding structured
+knowledge about each strategy (qualifications, IRC authority, synergy
+metadata), 24 IRC section documents fetched from Cornell LII, and 53
+chunked IRS publication segments from Publications 535, 550, 560, 590a,
+969, and 946. All sources are U.S. government works in the public
+domain. Documents are embedded using \texttt{all-MiniLM-L6-v2}
+\cite{reimers2019sbert} and stored in ChromaDB for dense retrieval.
+
+\subsection{Pipeline}
+
+At query time: (1) embed query and retrieve $K_c = 30$ candidates via
+cosine similarity; (2) formulate QUBO over candidates using
+Equation~\ref{eq:qubo}; (3) solve via one of three backends; (4) decode
+solution to selected document subset; (5) pass subset to Claude
+(claude-sonnet-4-20250514) for generation.
+
+% ─────────────────────────────────────────────
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Solvers}
+
+We evaluate three solvers against the same QUBO objective:
+
+\textbf{Classical Greedy:} Sort candidates by relevance score; select
+greedily subject to token budget and hard conflict avoidance (skip
+documents with conflict score $> 0.8$ against any already-selected
+document). This represents the industry baseline.
+
+\textbf{Simulated Annealing (SA):} \texttt{dimod.SimulatedAnnealingSampler}
+with \texttt{num\_reads=50}, \texttt{num\_sweeps=500}. Runs locally with
+no cloud dependency.
+
+\textbf{QAOA (Aer Simulator):} \texttt{QAOAAnsatz} at $p=2$ (two
+alternating layers), local Aer simulation, 1024 shots, seed=43,
+\texttt{optimization\_level=1} transpilation.
+
+\textbf{QAOA (IBM Quantum):} Same QAOA circuit submitted to
+\texttt{ibm\_fez} (IBM Heron R2, 156 qubits) via IBM Quantum Open Plan.
+20 qubits used (top-20 candidates by relevance). Single query result;
+job ID \texttt{d7i5h23jne2c7394sh60}.
+
+\subsection{Benchmark}
+
+12 tax strategy queries spanning self-employed trader scenarios,
+small business owner scenarios, and explicit conflict-testing scenarios
+(e.g., ``Can I use the Augusta Rule and home office deduction at the
+same time?''). Classical and SA results are averaged over 2 runs per
+query (24 total evaluations each). QAOA Aer results use a fixed seed
+for reproducibility. IBM QPU result is a single query run due to free
+tier constraints (10 minutes per 28-day rolling window).
+
+\subsection{Metrics}
+
+\textbf{Combination Quality Score:} $\sum_{i<j, i,j \in S} S_{ij} -
+C_{ij} \cdot 2 - (A_{ij} - 1)$ for selected set $S$. Captures the
+net value of the selected combination accounting for synergies,
+conflicts, and audit risk.
+
+\textbf{Total Synergy Captured:} $\sum_{i<j, i,j \in S} S_{ij}$.
+Raw synergy without conflict penalty.
+
+\textbf{Conflict Rate:} Fraction of queries where selected set contains
+at least one conflicting strategy pair ($C_{ij} > 0.7$).
+
+\textbf{Average Relevance:} Mean cosine similarity of selected
+documents to query embedding.
+
+% ─────────────────────────────────────────────
+\section{Results}
+\label{sec:results}
+
+\subsection{Main Benchmark}
+
+Table~\ref{tab:main} reports aggregate results across all solvers.
+
+\begin{table}[h]
+\centering
+\caption{Main benchmark results. QAOA Aer uses seed=43, $p=2$,
+random-init parameters. IBM QPU: single-query result on \texttt{ibm\_fez}
+(Heron R2). $^\dagger$High variance; see Section~\ref{sec:analysis}.
+$^\ddagger$Single query, $n=1$.}
+\label{tab:main}
+\begin{tabular}{lcccc}
+\toprule
+Metric & Classical & Sim. Anneal & QAOA (Aer)$^\dagger$ & IBM QPU$^\ddagger$ \\
+\midrule
+Combination Score & 0.675 & 1.846 & 2.779 & 5.100 \\
+Total Synergy & 0.700 & 1.846 & 4.371 & 5.500 \\
+Synergies Found & 0.75 & 1.875 & 4.583 & 5.0 \\
+Conflict Rate & 0.0\% & 0.0\% & 66.7\% & 0.0\% \\
+Avg. Relevance & 0.447 & 0.377 & 0.362 & — \\
+Rerank Time & $<$1ms & 7.4s & 605ms & 21s \\
+\midrule
+$\Delta$ vs. Classical & — & +173.5\% & +311.7\%$^\dagger$ & +655\%$^\ddagger$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Simulated annealing achieves the best \emph{practical} result: 173.5\%
+improvement in combination quality over classical greedy with zero
+conflict selections. QAOA in both configurations captures more raw
+synergy than SA but at the cost of a 66.7\% conflict rate (Aer) and
+high variance (IBM QPU single-query). Classical greedy is the only
+solver with zero conflicts by construction due to its explicit conflict
+avoidance heuristic.
+
+The IBM QPU single-query result (combination score 5.100, 5 synergy
+pairs) is the highest observed value across all experiments, but
+insufficient for statistical claims. We report it for reproducibility
+and as evidence of the hardware's ability to find high-quality
+solutions. The selected strategies for this run were: \textsc{Section
+1256}, \textsc{QBI Deduction}, \textsc{S-Corp Salary}, \textsc{Solo
+401(k)}, \textsc{HSA}, \textsc{Augusta Rule}, \textsc{Roth Conversion},
+plus supporting IRS publication chunks.
+
+\subsection{Conflict Rate Decomposition}
+
+The 66.7\% conflict rate of QAOA Aer is not distributed uniformly.
+Queries explicitly testing conflict scenarios (Q5: Augusta Rule +
+home office; Q7: same) both produce combination scores of $-2.9$,
+the worst observed values. This indicates that QAOA without parameter
+optimization cannot enforce the conflict penalty even when the
+conflicting pair is the dominant feature of the query. This observation
+motivates our ablation study in Section~\ref{sec:analysis}.
+
+% ─────────────────────────────────────────────
+\section{Analysis}
+\label{sec:analysis}
+
+\subsection{QAOA Parameter Sensitivity}
+
+We evaluate QAOA's sensitivity to random parameter initialization by
+running the same query (``S-Corp active futures trading on MNQ
+contracts'') with four seeds (42–45) at optimization level 1 on
+\texttt{ibm\_fez}. Table~\ref{tab:sensitivity} reports results.
+
+\begin{table}[h]
+\centering
+\caption{QAOA parameter sensitivity on \texttt{ibm\_fez}.
+All runs: 20 qubits, 1024 shots, $p=1$, random-init parameters.
+Job IDs are provided for reproducibility.}
+\label{tab:sensitivity}
+\small
+\begin{tabular}{lccccc}
+\toprule
+Seed & Depth & Energy & Combo Score & Synergy & Job ID \\
+\midrule
+42 & 1104 & $-44.39$ & 1.200 & 1.50 & \texttt{d7i5kk493s0c738tjto0} \\
+43 & 769  & $+24.63$ & \textbf{6.650} & 7.05 & \texttt{d7i5ktk93s0c738tju70} \\
+44 & 972  & $-28.66$ & 1.450 & 1.45 & \texttt{d7i5l2a2khts739qg0eg} \\
+45 & 1115 & $+21.46$ & 2.250 & 2.25 & \texttt{d7i5lbvb91ec73avfjq0} \\
+\midrule
+Mean & 990 & $-6.74$ & 2.888 & 3.06 & — \\
+Std & 161 & 35.01 & 2.548 & 2.65 & — \\
+CV & 16.3\% & n/a & \textbf{88.2\%} & — & — \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The 88.2\% coefficient of variation on combination score demonstrates
+that random parameter initialization produces highly unstable solutions
+on real NISQ hardware. The standard deviation of Ising energy (35.01)
+spans both positive and negative values across seeds, indicating that
+random angles sample widely separated basins of the variational
+landscape.
+
+\subsection{Energy-Combination Score Divergence}
+
+A particularly striking finding emerges from Table~\ref{tab:sensitivity}:
+\emph{Ising energy and downstream combination quality are not
+monotonically related.} Seed 43, which achieves the worst Ising energy
+(+24.63, indicating a high-energy state far from the ground state of
+the cost Hamiltonian), simultaneously achieves the best combination
+score (6.650). Seed 42, with the best energy at optimization level 3
+($-73.61$), achieves the worst combination score (0.700).
+
+This divergence arises because the QAOA objective — minimizing the
+Ising Hamiltonian — is only a proxy for the downstream combination
+quality metric. At shallow depth ($p=1,2$) without parameter
+optimization, the most-frequently sampled bitstring reflects the
+structure of the variational ansatz rather than the true ground state.
+The ground state of the Ising Hamiltonian would correspond to the
+globally optimal document selection, but QAOA without VQE does not
+reliably reach it. This misalignment motivates either deeper circuits
+($p \geq 3$) or VQE parameter optimization.
+
+\subsection{Transpiler Optimization}
+
+With QAOA parameters held fixed at seed=42, we compare
+\texttt{optimization\_level=1} versus \texttt{optimization\_level=3}
+transpilation. Level 3 achieves a 39.3\% reduction in circuit depth
+(1104 $\to$ 670 gates) and a lower Ising energy ($-44.39 \to -73.61$).
+However, the combination score decreases (1.200 $\to$ 0.700),
+consistent with the energy-score divergence finding. We conclude that
+transpiler optimization improves the fidelity of circuit execution but
+does not resolve the parameter optimization problem. Level 3 is
+recommended for final paper runs.
+
+\subsection{$\lambda_{\text{cnt}}$ Ablation — Negative Result}
+
+We test whether increasing the cardinality penalty weight from
+$\lambda_{\text{cnt}} = 1.0$ to $5.0$ reduces QAOA's 66.7\% conflict
+rate. Table~\ref{tab:ablation} reports results on four
+conflict-producing queries.
+
+\begin{table}[h]
+\centering
+\caption{$\lambda_{\text{cnt}}$ ablation on conflict queries.
+QAOA Aer, seed=43, $p=2$. Three of four queries produce
+\emph{identical bitstrings} despite $4\times$ energy scaling.}
+\label{tab:ablation}
+\small
+\begin{tabular}{lcccc}
+\toprule
+Metric & $\lambda=1.0$ & $\lambda=5.0$ & $\Delta$ \\
+\midrule
+Docs selected (mean) & 20.0 & 15.0 & $-5.0$ \\
+Combination score & $-1.075$ & $-0.350$ & $+0.725$ \\
+Total conflict & 0.712 & 0.475 & $-0.237$ \\
+Conflict rate & 100\% & 75\% & $-25$pp \\
+Identical bitstrings & — & 3/4 queries & — \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The key finding: three of four queries produce \emph{bit-identical
+output} at $\lambda_{\text{cnt}} = 5.0$ despite the QUBO energy of
+those bitstrings increasing by $4\times$ the per-variable penalty delta.
+Query 7 is the sole exception, but resolves to the all-zeros bitstring
+(zero documents selected) — a degenerate solution that is
+trivially conflict-free but useless for RAG.
+
+This result is diagnostic: \emph{QAOA without parameter optimization is
+not responsive to the QUBO objective landscape.} Increasing the penalty
+raises the energy of bad solutions without changing which solutions are
+sampled, because the random variational parameters are not driven toward
+the energy minimum. The 66.7\% conflict rate is therefore not a QUBO
+encoding deficiency but a fundamental limitation of un-optimized QAOA
+on NISQ hardware. The correct fix is VQE parameter optimization, not
+QUBO weight tuning.
+
+% ─────────────────────────────────────────────
+\section{Discussion and Future Work}
+\label{sec:discussion}
+
+\subsection{Practical Recommendation}
+
+For practitioners seeking to deploy quantum-hybrid RAG today, simulated
+annealing is the clear recommendation: it achieves 173\% better
+combination quality than classical greedy, enforces all constraints
+reliably, runs locally without cloud dependency, and completes in under
+10 seconds per query. QAOA on current NISQ hardware requires VQE
+parameter optimization before it can be used reliably in production.
+
+\subsection{Limitations}
+
+\textbf{QAOA parameter optimization.} All QAOA results in this paper
+use random parameter initialization. VQE-optimized parameters would
+likely improve solution quality and reduce conflict rate substantially.
+We leave this as the primary future work item.
+
+\textbf{IBM QPU statistical power.} The IBM QPU result is a single
+query run ($n=1$) due to free tier constraints. The impressive
+combination score (5.100) should be interpreted as a proof of concept,
+not a statistically robust finding. Multi-query evaluation on real
+hardware requires paid access (IBM Quantum Flex or Premium Plan).
+
+\textbf{Corpus size.} The 87-document corpus is small by RAG standards.
+Larger corpora (thousands of documents) would require a two-stage
+approach: dense retrieval to a larger candidate pool, then QUBO over
+the top-$N$ candidates.
+
+\textbf{Interaction matrix coverage.} The current matrix encodes 20
+strategy pairs. A comprehensive tax strategy interaction matrix would
+require collaboration with licensed tax professionals and coverage of
+hundreds of strategy combinations.
+
+\subsection{Future Work}
+
+\textbf{VQE-optimized QAOA.} Warm-starting QAOA parameters from the SA
+solution \cite{warmstart2021} is the most promising near-term
+improvement. SA finds a good classical solution; QAOA can then be
+initialized near that solution and fine-tuned with a small number of
+classical optimization steps.
+
+\textbf{Reps scaling.} Increasing QAOA depth from $p=1$ to $p \geq 3$
+should improve approximation ratio. The practical limit is circuit depth
+vs.\ decoherence on current hardware.
+
+\textbf{Domain generalization.} The interaction matrix approach
+generalizes to any domain with explicit pairwise document constraints:
+medical treatment combinations, legal precedent compatibility,
+investment portfolio diversification. Each domain requires a
+domain-specific interaction matrix but the QUBO formulation is
+identical.
+
+\textbf{Fault-tolerant hardware.} As quantum hardware matures toward
+fault tolerance, the circuit depth constraints that limit current QAOA
+performance will relax. The QUBO formulation presented here is hardware-
+agnostic and will benefit directly from improved processors.
+
+% ─────────────────────────────────────────────
+\section{Related Work}
+\label{sec:related}
+
+\textbf{Quantum-enhanced RAG.} \citet{qrag2025} propose QRAG, using
+Grover's algorithm for query acceleration and QAOA for basic relevance
+ranking. Their work runs on simulators only, uses a single-objective
+QUBO (relevance alone), and is not open-sourced. Our work extends this
+with multi-constraint QUBO formulation, real hardware evaluation, and
+rigorous failure mode analysis.
+
+\textbf{Classical RAG reranking.} Maximal Marginal Relevance (MMR)
+\cite{carbonell1998mmr} penalizes redundancy in reranking but optimizes
+greedily and cannot encode arbitrary pairwise constraints.
+Cross-encoder reranking \cite{nogueira2019passage} improves relevance
+scoring but also selects documents independently. Our QUBO approach is
+the first to encode domain-specific synergy and conflict as first-class
+optimization objectives.
+
+\textbf{QAOA for combinatorial optimization.} \citet{farhi2014qaoa}
+introduced QAOA for MaxCut; subsequent work has applied it to portfolio
+optimization \cite{mugel2022portfolio} and scheduling
+\cite{venturelli2016scheduling}. Our work is the first application of
+QAOA to document selection in RAG systems.
+
+\textbf{Parameter sensitivity in QAOA.} \citet{shaydulin2023qaoa}
+analyze QAOA parameter landscapes on NISQ hardware, finding high
+variance with random initialization — consistent with our findings.
+\citet{warmstart2021} propose warm-starting QAOA from classical
+solutions, which we identify as key future work.
+
+% ─────────────────────────────────────────────
+\section{Conclusion}
+\label{sec:conclusion}
+
+We presented TaxQRAG, a quantum-hybrid RAG system that formulates
+document selection as a multi-constraint QUBO incorporating pairwise
+synergy rewards, conflict penalties, and audit risk compounding.
+Evaluated on a tax strategy corpus using IBM Quantum's Heron R2
+processor, we find that simulated annealing achieves 173\% better
+combination quality than classical greedy with zero conflicts —
+making it the practical recommendation for deployment today. Gate-based
+QAOA without parameter optimization produces a 66.7\% conflict rate
+that a $\lambda$ ablation study confirms is caused by unoptimized
+variational parameters, not QUBO formulation deficiency. This negative
+result precisely motivates VQE-optimized QAOA as future work. All code,
+benchmark data, and IBM Quantum job identifiers are released for
+reproducibility.
+
+% ─────────────────────────────────────────────
+\section*{Acknowledgments}
+
+We acknowledge the use of IBM Quantum services for this work. The views
+expressed are those of the authors, and do not reflect the official
+policy or position of IBM or the IBM Quantum team.
+
+IBM Quantum hardware used: \texttt{ibm\_fez} (Heron R2, 156 qubits).
+Job identifiers: \texttt{d7i5h23jne2c7394sh60} (main result, opt.
+level 1), \texttt{d7i5idjjne2c7394sihg} (opt. level 3),
+\texttt{d7i5kk493s0c738tjto0}–\texttt{d7i5lbvb91ec73avfjq0}
+(sensitivity analysis, seeds 42–45).
+
+% ─────────────────────────────────────────────
+\bibliographystyle{plainnat}
+\begin{thebibliography}{99}
+
+\bibitem{lewis2020rag}
+Lewis, P., Perez, E., Piktus, A., Petroni, F., Karpukhin, V., Goyal,
+N., ... \& Kiela, D. (2020). Retrieval-Augmented Generation for
+Knowledge-Intensive NLP Tasks. \textit{Advances in Neural Information
+Processing Systems}, 33, 9459--9474.
+
+\bibitem{qrag2025}
+Adithi, K., \& Kapilavani, R. K. (2025).
+Quantum Synergy in Retrieval-Augmented Generation for Contextual
+Enhancement. \textit{Preprint, Research Square}.
+DOI: 10.21203/rs.3.rs-6216441/v1.
+
+\bibitem{hnsw}
+Malkov, Y. A., \& Yashunin, D. A. (2018). Efficient and Robust
+Approximate Nearest Neighbor Search Using Hierarchical Navigable Small
+World Graphs. \textit{IEEE Transactions on Pattern Analysis and Machine
+Intelligence}, 42(4), 824--836.
+
+\bibitem{carbonell1998mmr}
+Carbonell, J., \& Goldstein, J. (1998). The Use of MMR,
+Diversity-Based Reranking for Reordering Documents and Producing
+Summaries. \textit{Proceedings of SIGIR}, 335--336.
+
+\bibitem{nogueira2019passage}
+Nogueira, R., \& Cho, K. (2019). Passage Re-ranking with BERT.
+\textit{arXiv preprint arXiv:1901.04085}.
+
+\bibitem{farhi2014qaoa}
+Farhi, E., Goldstone, J., \& Gutmann, S. (2014). A Quantum Approximate
+Optimization Algorithm. \textit{arXiv preprint arXiv:1411.4028}.
+
+\bibitem{reimers2019sbert}
+Reimers, N., \& Gurevych, I. (2019). Sentence-BERT: Sentence Embeddings
+using Siamese BERT-Networks. \textit{Proceedings of EMNLP}.
+
+\bibitem{warmstart2021}
+Egger, D. J., Marecek, J., \& Woerner, S. (2021). Warm-Starting Quantum
+Optimization. \textit{Quantum}, 5, 479.
+
+\bibitem{shaydulin2023qaoa}
+Shaydulin, R., Lotshaw, P. C., Larson, J., Ostrowski, J., \& Humble,
+T. S. (2023). Parameter Transfer for Quantum Approximate Optimization
+of Weighted MaxCut. \textit{ACM Transactions on Quantum Computing}, 4(3).
+
+\bibitem{mugel2022portfolio}
+Mugel, S., Kuchkovsky, C., Sanchez, E., Fernandez-Lorenzo, S.,
+Luis-Hita, J., Lizaso, E., \& Orus, R. (2022). Dynamic Portfolio
+Optimization with Real Datasets Using Quantum Processors and Quantum-
+Inspired Tensor Networks. \textit{Physical Review Research}, 4(1).
+
+\bibitem{venturelli2016scheduling}
+Venturelli, D., Marchand, D. J., \& Rojo, G. (2016). Quantum Annealing
+Implementation of Job-Shop Scheduling. \textit{arXiv preprint
+arXiv:1506.08479}.
+
+\end{thebibliography}
+
+\end{document}
